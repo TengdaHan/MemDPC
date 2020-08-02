@@ -9,9 +9,9 @@ Links: [[Arxiv-soon]()] [[PDF](http://www.robots.ox.ac.uk/~vgg/publications/2020
 ### Preparation
 
 This repository is implemented in PyTorch 1.2, but newer version should also work.
-Additionally, it needs tqdm, tensorboardX. 
+Additionally, it needs cv2, joblib, tqdm, tensorboardX. 
 
-For the dataset and dataloader, please follow the instructions [here](process_data/).
+For the dataset, please follow the instructions [here](process_data/).
 
 
 
@@ -30,6 +30,9 @@ python main.py --gpu 0,1,2,3 --net resnet34 --dataset k400 --batch_size 16 --img
 ```
 
 ### Evaluation
+
+Finetune entire network for action classification on UCF101:
+![arch](asset/finetune.png)
 
 Code comming soon.
 
