@@ -4,11 +4,7 @@ This repository contains the implementation of Memory-augmented Dense Predictive
 
 Links: [[Arxiv-soon]()] [[PDF](http://www.robots.ox.ac.uk/~vgg/publications/2020/Han20/han20.pdf)] [[Video](https://www.youtube.com/watch?v=XlR7QoM053k)] [[Project page](http://www.robots.ox.ac.uk/~vgg/research/DPC/)]
 
-<center>
 ![arch](asset/arch.png)
-
-![finetune](asset/finetune.png)
-</center>
 
 ### Preparation
 
