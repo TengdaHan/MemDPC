@@ -38,7 +38,7 @@ Also keep the downloaded csv files, make sure you have:
 
 ### 2. Extract frame and flow
 
-[Optional for Kinetics400] Reduce the video dimension to short size = 256 pixel with `ffmpeg`, to save space and time. 
+[Optional for Kinetics400] Reduce the video dimension to short size = 256 pixel with `ffmpeg`, to save space and time. An example is provided in [src/resize_video.py](src/resize_video.py). 
 
 Edit path arguments in `main_*()` functions, and `python extract_ff.py`. Video frame and TV-L1 optical flow will be extracted. 
 
