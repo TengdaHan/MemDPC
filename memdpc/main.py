@@ -196,10 +196,11 @@ def train_one_epoch(data_loader, model, criterion, optimizer, lr_scheduler, devi
         loss, loss_step, acc, extra = model(input_seq)
 
         for i in range(2):
-            top1, top5 = acc[i].squeeze(0)
+            top1, top5 = acc[i].mean(0) # average acc across multi-gpus
             accuracy[i][0].update(top1.item(), B)
             accuracy[i][1].update(top5.item(), B)
 
+        loss = loss.mean() # average loss across multi-gpus
         losses.update(loss.item(), B)
 
         optimizer.zero_grad()
@@ -254,10 +255,11 @@ def validate(data_loader, model, criterion, device, epoch, args):
             loss, loss_step, acc, extra = model(input_seq)
 
             for i in range(2):
-                top1, top5 = acc[i].squeeze(0)
+                top1, top5 = acc[i].mean(0) # average acc across multi-gpus
                 accuracy[i][0].update(top1.item(), B)
                 accuracy[i][1].update(top5.item(), B)
 
+            loss = loss.mean() # average loss across multi-gpus
             losses.update(loss.item(), B)
 
     print('Epoch: [{0}/{1}]\t'
