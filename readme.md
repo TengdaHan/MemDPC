@@ -36,7 +36,7 @@ Finetune entire network for action classification on UCF101:
 
 Code comming soon.
 
-### MemDPC-pretrained weights
+### MemDPC pretrained weights
 
 Comming soon.
 
