@@ -6,6 +6,10 @@ Links: [[arXiv](https://arxiv.org/abs/2008.01065)] [[PDF](http://www.robots.ox.a
 
 ![arch](asset/arch.png)
 
+### News
+
+* 2020/08/26: correct the DynamoNet statistics in the figure. DynamoNet uses 500K videos from Youtube8M but only use 10-second clip from each, totally the video length is about 58 days. 
+
 ### Preparation
 
 This repository is implemented in PyTorch 1.2, but newer version should also work.
