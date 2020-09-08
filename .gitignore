@@ -2,6 +2,7 @@
 */*/__pycache__/
 *.pyc
 *.pth.tar
+*.tar
 *.pth
 *.cluster.local
 *tfevent*
@@ -23,3 +24,5 @@ process_data/data/
 *.pdf
 *.csv
 *.txt
+*.log
+*.json

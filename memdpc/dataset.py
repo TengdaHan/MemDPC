@@ -115,7 +115,8 @@ class UCF101Dataset(data.Dataset):
                  num_seq=8,
                  downsample=3,
                  which_split=1,
-                 return_label=False):
+                 return_label=False,
+                 return_path=False):
         self.mode = mode
         self.transform = transform
         self.seq_len = seq_len
@@ -123,6 +124,7 @@ class UCF101Dataset(data.Dataset):
         self.downsample = downsample
         self.which_split = which_split
         self.return_label = return_label
+        self.return_path = return_path
 
         # splits
         if mode == 'train':
@@ -153,8 +155,14 @@ class UCF101Dataset(data.Dataset):
 
     def idx_sampler(self, vlen, vpath):
         '''sample index from a video'''
-        start_idx = np.random.choice(range(vlen-self.num_seq*self.seq_len*self.downsample), 1)
-        seq_idx = np.arange(self.num_seq*self.seq_len)*self.downsample + start_idx
+        if self.mode == 'test':
+            available = vlen-self.num_seq*self.seq_len*self.downsample
+            start_idx = np.expand_dims(np.arange(0, available+1, self.num_seq*self.seq_len*self.downsample//2-1), 1)
+            seq_idx = np.expand_dims(np.arange(self.num_seq*self.seq_len)*self.downsample, 0) + start_idx # [test_sample, num_frames]
+            seq_idx = seq_idx.flatten(0)
+        else:
+            start_idx = np.random.choice(range(vlen-self.num_seq*self.seq_len*self.downsample), 1)
+            seq_idx = np.arange(self.num_seq*self.seq_len)*self.downsample + start_idx
         return seq_idx
 
 
@@ -167,7 +175,10 @@ class UCF101Dataset(data.Dataset):
         
         (C, H, W) = t_seq[0].size()
         t_seq = torch.stack(t_seq, 0)
-        t_seq = t_seq.view(self.num_seq, self.seq_len, C, H, W).transpose(1,2)
+        if self.mode == 'test':
+            t_seq = t_seq.view(-1, self.num_seq, self.seq_len, C, H, W).transpose(2,3)
+        else:
+            t_seq = t_seq.view(self.num_seq, self.seq_len, C, H, W).transpose(1,2)
 
         if self.return_label:
             try:
@@ -177,7 +188,10 @@ class UCF101Dataset(data.Dataset):
                 vname = vpath.split('/')[-2]
                 vid = self.encode_action(vname)
             label = torch.LongTensor([vid])
-            return t_seq, label
+            if self.return_path:
+                return t_seq, (label, vpath)
+            else:
+                return t_seq, label
             
         return t_seq
 
@@ -190,3 +204,101 @@ class UCF101Dataset(data.Dataset):
     def decode_action(self, action_code):
         return self.idx_to_class[action_code]
 
+
+class HMDB51Dataset(data.Dataset):
+    def __init__(self,
+                 root='%s/../process_data/data/hmdb51' % os.path.dirname(os.path.abspath(__file__)),
+                 mode='val',
+                 transform=None, 
+                 seq_len=5,
+                 num_seq=8,
+                 downsample=3,
+                 which_split=1,
+                 return_label=False,
+                 return_path=False):
+        self.mode = mode
+        self.transform = transform
+        self.seq_len = seq_len
+        self.num_seq = num_seq
+        self.downsample = downsample
+        self.which_split = which_split
+        self.return_label = return_label
+        self.return_path = return_path
+
+        # splits
+        if mode == 'train':
+            split = '../process_data/data/hmdb51/train_split%02d.csv' % self.which_split
+            video_info = pd.read_csv(split, header=None)
+        elif (mode == 'val') or (mode == 'test'): # use val for test
+            split = '../process_data/data/hmdb51/test_split%02d.csv' % self.which_split 
+            video_info = pd.read_csv(split, header=None)
+        else: raise ValueError('wrong mode')
+
+        # get action list
+        classes = read_file(os.path.join(root, 'ClassInd.txt'))
+        print('Frame Dataset from {} has #class {}'.format(root, len(classes)))
+        self.num_class = len(classes)
+        self.class_to_idx = {classes[i]:i for i in range(len(classes))}
+        self.idx_to_class = {i:classes[i] for i in range(len(classes))}
+
+        # filter out too short videos:
+        drop_idx = []
+        for idx, row in video_info.iterrows():
+            vpath, vlen = row
+            if vlen-self.num_seq*self.seq_len*self.downsample <= 0:
+                drop_idx.append(idx)
+        self.video_info = video_info.drop(drop_idx, axis=0)
+
+        if mode == 'val': 
+            self.video_info = self.video_info.sample(frac=0.3)
+
+    def idx_sampler(self, vlen, vpath):
+        '''sample index from a video'''
+        if self.mode == 'test':
+            available = vlen-self.num_seq*self.seq_len*self.downsample
+            start_idx = np.expand_dims(np.arange(0, available+1, self.num_seq*self.seq_len*self.downsample//2-1), 1)
+            seq_idx = np.expand_dims(np.arange(self.num_seq*self.seq_len)*self.downsample, 0) + start_idx # [test_sample, num_frames]
+            seq_idx = seq_idx.flatten(0)
+        else:
+            start_idx = np.random.choice(range(vlen-self.num_seq*self.seq_len*self.downsample), 1)
+            seq_idx = np.arange(self.num_seq*self.seq_len)*self.downsample + start_idx
+        return seq_idx
+
+
+    def __getitem__(self, index):
+        vpath, vlen = self.video_info.iloc[index]
+        frame_index = self.idx_sampler(vlen, vpath)
+        
+        seq = [pil_loader(os.path.join(vpath, 'image_%05d.jpg' % (i+1))) for i in frame_index]
+        t_seq = self.transform(seq)
+        
+        (C, H, W) = t_seq[0].size()
+        t_seq = torch.stack(t_seq, 0)
+        if self.mode == 'test':
+            t_seq = t_seq.view(-1, self.num_seq, self.seq_len, C, H, W).transpose(2,3)
+        else:
+            t_seq = t_seq.view(self.num_seq, self.seq_len, C, H, W).transpose(1,2)
+
+        if self.return_label:
+            try:
+                vname = vpath.split('/')[-3]
+                vid = self.encode_action(vname)
+            except:
+                vname = vpath.split('/')[-2]
+                vid = self.encode_action(vname)
+            label = torch.LongTensor([vid])
+            if self.return_path:
+                return t_seq, (label, vpath)
+            else:
+                return t_seq, label
+            
+        return t_seq
+
+    def __len__(self):
+        return len(self.video_info)
+
+    def encode_action(self, action_name):
+        return self.class_to_idx[action_name]
+
+    def decode_action(self, action_code):
+        return self.idx_to_class[action_code]

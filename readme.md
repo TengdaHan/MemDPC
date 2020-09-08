@@ -38,11 +38,23 @@ python main.py --gpu 0,1,2,3 --net resnet34 --dataset k400 --batch_size 16 --img
 Finetune entire network for action classification on UCF101:
 ![arch](asset/finetune.png)
 
-Code comming soon.
+* Change directory `cd eval/`
+
+* Train action classifier by finetuning the pretrained weights
+```
+python test.py --gpu 0,1 --net resnet34 --dataset ucf101 --batch_size 16 --img_dim 224 --epochs 500 --train_what ft
+```
+
+* Train action classifier by freezing the pretrained weights and only a linear layer
+```
+python test.py --gpu 0,1 --net resnet34 --dataset ucf101 --batch_size 16 --img_dim 224 --epochs 100 --train_what last --schedule 60 80
+```
 
 ### MemDPC pretrained weights
 
-Comming soon.
+* [MemDPC-ResNet34-K400-RGB-224](http://www.robots.ox.ac.uk/~htd/memdpc/k400-rgb-224_resnet34_memdpc.pth.tar)
+
+* [MemDPC-ResNet34-K400-Flow-224](http://www.robots.ox.ac.uk/~htd/memdpc/k400-flow-224_resnet34_memdpc.pth.tar)
 
 ### Citation
 

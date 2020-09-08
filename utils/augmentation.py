@@ -57,7 +57,35 @@ class CenterCrop:
         y1 = int(round((h - th) / 2.))
         return [i.crop((x1, y1, x1 + tw, y1 + th)) for i in imgmap]
 
+class FiveCrop:
+    def __init__(self, size, where=1):
+        # 1=topleft, 2=topright, 3=botleft, 4=botright, 5=center
+        if isinstance(size, numbers.Number):
+            self.size = (int(size), int(size))
+        else:
+            self.size = size
+        self.where = where 
 
+    def __call__(self, imgmap):
+        img1 = imgmap[0]
+        w, h = img1.size
+        th, tw = self.size
+        if (th > h) or (tw > w):
+            raise ValueError("Requested crop size {} is bigger than input size {}".format(self.size, (h,w)))
+        if self.where == 1:
+            return [i.crop((0, 0, tw, th)) for i in imgmap]
+        elif self.where == 2:
+            return [i.crop((w-tw, 0, w, th)) for i in imgmap]
+        elif self.where == 3:
+            return [i.crop((0, h-th, tw, h)) for i in imgmap]
+        elif self.where == 4:
+            return [i.crop((w-tw, h-tw, w, h)) for i in imgmap]
+        elif self.where == 5:
+            x1 = int(round((w - tw) / 2.))
+            y1 = int(round((h - th) / 2.))
+            return [i.crop((x1, y1, x1 + tw, y1 + th)) for i in imgmap]
+
+            
 class RandomCropWithProb:
     def __init__(self, size, p=0.8, consistent=True):
         if isinstance(size, numbers.Number):

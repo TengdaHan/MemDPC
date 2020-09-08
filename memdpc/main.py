@@ -164,7 +164,7 @@ def main(args):
         is_best = val_acc > best_acc
         best_acc = max(val_acc, best_acc)
         save_dict = {'epoch': epoch,
-                     'state_dict': model.state_dict(),
+                     'state_dict': model_without_dp.state_dict(),
                      'best_acc': best_acc,
                      'optimizer': optimizer.state_dict(),
                      'iteration': args.iteration}
@@ -240,8 +240,6 @@ def train_one_epoch(data_loader, model, criterion, optimizer, lr_scheduler, devi
 
 
 def validate(data_loader, model, criterion, device, epoch, args):
-    batch_time = AverageMeter()
-    data_time = AverageMeter()
     losses = AverageMeter()
     accuracy = [[AverageMeter(), AverageMeter()], # forward top1, top5
                 [AverageMeter(), AverageMeter()]] # backward top1, top5

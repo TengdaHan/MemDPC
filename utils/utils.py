@@ -35,6 +35,20 @@ def write_log(content, epoch, filename):
     log_file.write(content + '\n\n')
     log_file.close()
 
+class Logger(object):
+    '''write something to txt file'''
+    def __init__(self, path):
+        self.birth_time = datetime.now()
+        filepath = os.path.join(path, self.birth_time.strftime('%Y-%m-%d-%H:%M:%S')+'.log')
+        self.filepath = filepath
+        with open(filepath, 'a') as f:
+            f.write(self.birth_time.strftime('%Y-%m-%d %H:%M:%S')+'\n')
+
+    def log(self, string):
+        with open(self.filepath, 'a') as f:
+            time_stamp = datetime.now() - self.birth_time
+            f.write(strfdelta(time_stamp,"{d}-{h:02d}:{m:02d}:{s:02d}")+'\t'+string+'\n')
+
 def calc_topk_accuracy(output, target, topk=(1,)):
     '''
     Modified from: https://gist.github.com/agermanidis/275b23ad7a10ee89adccf021536bb97e
