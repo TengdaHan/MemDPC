@@ -8,6 +8,8 @@ Links: [[arXiv](https://arxiv.org/abs/2008.01065)] [[PDF](http://www.robots.ox.a
 
 ### News
 
+* 2020/09/08: upload [evaluation code](https://github.com/TengdaHan/MemDPC#evaluation) for action classification and upload [pretrained weights on Kinetics400](https://github.com/TengdaHan/MemDPC#memdpc-pretrained-weights). 
+
 * 2020/08/26: correct the DynamoNet statistics in the figure. DynamoNet uses 500K videos from Youtube8M but only use 10-second clip from each, totally the video length is about 58 days. 
 
 ### Preparation
