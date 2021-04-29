@@ -45,7 +45,7 @@ Finetune entire network for action classification on UCF101:
 * Train action classifier by finetuning the pretrained weights
 ```
 python test.py --gpu 0,1 --net resnet34 --dataset ucf101 --batch_size 16 \
---img_dim 224 --epochs 500 --train_what ft
+--img_dim 224 --epochs 500 --train_what ft --schedule 300 400
 ```
 
 * Train action classifier by freezing the pretrained weights and only a linear layer
